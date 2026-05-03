@@ -10,7 +10,6 @@ df = df[(df["Data"] >= "2021-01-01") & (df["Data"] <= "2025-12-31")]
 # Parametry symulacji
 # S_0 = df["Zamkniecie"].iloc[-1]
 S_0 = 3200
-print(f"Obecna cena WIG20 (S0): {S_0:.2f}")
 T = 1.0 # czas do wygaśnięcia opcji w latach
 # dt = T / (365 * 1)
 dt = 1 / 10000
@@ -20,7 +19,7 @@ sigma_h = 0.3
 
 # r = 0.0324 # stopa wolna od ryzyka
 r = 0.05
-N = 30000 # liczba symulacji
+N = 20000 # liczba symulacji, dobrze jakby było >40k, ale problem z pamięcią
 seed = 42
 
 # Parametry opcji
