@@ -1,0 +1,154 @@
+\section{Część Jana}
+\textcolor{red}{TODO: Rozdzielić wszystko na dobre miejsca}
+
+\subsection{Badanie optymalnej wartości parametru $\sigma$ w trakcie trwania symulacji}
+
+Zgodnie z naszą strategią \textit{worst case scenario} w każdym punkcie siatki chcemy policzyć wartość opcji dla najmniej sprzyjających parametrów. Jedynym niepewnym parametrem w trakcie symulacji jest $\sigma$. Zakładamy $\sigma \in [0.2,0.3]$. Jak to było wcześniej omówione, w każdym punkcie wybieramy wartość $\sigma$ maksymalizującą cenę opcji. Wiemy, że to będzie $\sigma = 0.2$ dla $\Gamma_{opcji} < 0$ i $\sigma = 0.3$ dla $\Gamma_{opcji} > 0$. Przeanalizujmy mapę ciepła wartości $\sigma$ w trakcie trwania symulacji.
+
+\begin{table}[H]
+\centering
+\small % Zmniejszenie fontu, aby tabela na pewno zmieściła się w szerokości kolumny
+\begin{tabular}{lccccccc}
+    \toprule
+    \textbf{Parametr} & $S_0$ & $K$ & $B_{\textit{call}}$ & $B_{\textit{put}}$ & $\sigma$ & $r$ & $q$ \\
+    \midrule
+    \textbf{Wartość}  & 3200  & 3200 & 3600                & 2800               & $[0.2, 0.3]$ & $5\%$ & 300 \\
+    \bottomrule
+\end{tabular}
+\caption{Parametry wejściowe w symulacji}
+\label{tab:parametry_poziomo}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    % PIERWSZY RZĄD
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/sigma_eur_call.png}
+        \caption{Wykres dla europejskiej opcji CALL}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/sigma_eur_put.png}
+        \caption{Wykres dla europejskiej opcji PUT}
+    \end{subfigure}
+    
+    \vspace{0.5cm} % Odstęp pionowy między rzędami
+    
+    % DRUGI RZĄD
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/sigma_ame_call.png}
+        \caption{Wykres dla amerykańskiej opcji CALL}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/sigma_ame_put.png}
+        \caption{Wykres dla amerykańskiej opcji PUT}
+    \end{subfigure}
+    
+    \caption{Siatka optymalnych wartości parametru $\sigma$ w trakcie trwania symulacji}
+\end{figure}
+
+Na wykresach powyżej niebieskim kolorem zostały zaznaczone obszary, gdzie $\sigma_{opcji} = 0.2$, a czerwonym gdzie $\sigma_{opcji} = 0.3$. Warto zauważyć, że szary kolor reprezentuje obszary, gdzie obie wartości parametru są równie dobre. Występuje on jedynie w przypadkach brzegowych, czyli kiedy wartość instrumentu bazowego przekroczyła barierę, albo wartość instrumentu bazowego jest bardzo daleko od ceny wykonania (na brzegu naszej siatki).
+
+Na wszystkich wykresach możemy zauważyć następującą ogólną właściwość: $\sigma_{opcji} = 0.3$ dla punktów, w których cena instrumentu bazowego jest mocno oddalona od ceny wykonania. Jest tak, ponieważ wysoka zmienność daje nam większe prawdopodobieństwo wykonania opcji, które i tak jest małe daleko od ceny wykonania. Naturalnie blisko bariery dominuje $\sigma_{opcji} = 0.2$, chociaż jest to mniej widoczne w przypadku opcji amerykańskich, ponieważ można je w każdym momencie wykonać i dlatego prawie zawsze mają wyższą wartość $\sigma$.
+
+Kolejnym ciekawym zjawiskiem jest cienka czerwona linia blisko bariery na opcjach europejskich. Tak blisko bariery nie chcemy mieć już niskiej wartości $\sigma$, ponieważ jakikolwiek ruch w stronę bariery spowoduje jej przekroczenie. Opłaca się wtedy mieć wyższą wartość $\sigma$, ponieważ w przypadku gwałtownego spadku znajdziemy się dalej od bariery.
+
+Omówmy teraz elipsoidalny niebieski obszar w przypadku amerykańskiej opcji PUT. Występuje on tam ponieważ bardzo nieopłacalna jest $\sigma_{opcji} = 0.3$, bo istnieje ryzyko uderzenia w barierę w czasie wypłaty dywidendy. Dlatego przed jej wypłatą chcemy mieć jak najmniejszą szansę wejścia w ten ,,zły'' obszar. Podobna sytuacja występuje w przypadku elipsoidalnego czerwonego obszaru na niebieskim tle w opcji europejskiej PUT. Z tą różnicą, że w tym przypadku jesteśmy w ,,złym'' obszarze i potrzebujemy wysokiej wartości $\sigma$, żeby się z niego wydostać.
+
+Dla obu opcji PUT na samej górze wykresu możemy zauważyć mały niebieski obszar. Pojawia się on ponieważ wypłata dywidendy powoduje dużą zmianę pomiędzy wartością opcji na górnej bandzie i wartością opcji bezpośrednio pod nią. Ta zmiana lekko się propaguje i powstaje przez to niebieski obszar. To zjawisko pokazuje nam, że w tym modelu trzeba uważać co się dzieje w przypadkach brzegowych, ponieważ nie zawsze odpowiadają one rzeczywistości. Jednak nie zmienia to poprawności całej symulacji, ponieważ te anomalie występują daleko od ,,ciekawych'' obszarów i nie wpływają znacząco na wycenę opcji.
+
+Na wszystkich wykresach pod koniec trwania symulacji możemy zauważyć, daleko od ceny wykonania, szare obszary, które pokazują, że jakakolwiek wartość $\sigma$ nie pozwoli nam na wykonanie opcji.
+
+\subsection{Rozważania na temat dywidendy}
+W tym podrozdziale zbadamy jak zmienia się wartość opcji w zależności od wysokości dywidendy wypłacanej w środku trwania symulacji. Zastanowimy się również co się dzieje dla opcji wypłacającej dywidendę równą procentowi wartości opcji w danym momencie.
+
+W symulacjach będziemy używać poniższych parametrów.
+\begin{table}[H]
+\centering
+\small % Zmniejszenie fontu, aby tabela na pewno zmieściła się w szerokości kolumny
+\begin{tabular}{lccccccc}
+    \toprule
+    \textbf{Parametr} & $S_0$ & $K$ & $B_{\textit{call}}$ & $B_{\textit{put}}$ & $\sigma$ & $r$ & $q$ \\
+    \midrule
+    \textbf{Wartość}  & 3200  & 3200 & 3600                & 2800               & $[0.2, 0.3]$ & $5\%$ & 300 \\
+    \bottomrule
+\end{tabular}
+\caption{Parametry wejściowe w symulacji}
+\label{tab:parametry_poziomo}
+\end{table}
+
+\subsubsection{Stała wartość dywidendy}
+Rozważania zaczniemy od analizy symulacji dla różnych wysokości wypłacanej dywidendy.
+
+\begin{figure}[H]
+    \centering
+    % PIERWSZY RZĄD
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/d_eur_call.png}
+        \caption{Wykres dla europejskiej opcji CALL}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/d_eur_put.png}
+        \caption{Wykres dla europejskiej opcji PUT}
+    \end{subfigure}
+    
+    \vspace{0.5cm} % Odstęp pionowy między rzędami
+    
+    % DRUGI RZĄD
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/d_ame_call.png}
+        \caption{Wykres dla amerykańskiej opcji CALL}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/d_ame_put.png}
+        \caption{Wykres dla amerykańskiej opcji PUT}
+    \end{subfigure}
+    
+    \caption{Wartość opcji w chwili $T_0$ w zależności od ceny instrumentu bazowego dla różnych wartości wypłacanych dywidend}
+\end{figure}
+
+Przeanalizujmy na początku ogólny kształt, jaki tworzą te wykresy. Opcje europejskie są dwumonotoniczne. W miarę zbliżania się do ceny wykonania rosną, ale w pewnym momencie prawdopodobieństwo uderzenia w barierę staje się na tyle wysokie, że wartość opcji maleje wraz ze wzrostem wartości instrumentu bazowego. Opcje amerykańskie za to rosną wraz ze wzrostem ceny instrumentu bazowego do momentu uderzenia w barierę. Jest to oczywiście spowodowane tym, że opcję amerykańską można zawsze wykonać.
+
+Zastanówmy się teraz jak zmienia się wartość opcji w zależności od wysokości dywidendy. Dla opcji CALL występuje prosta zależność - im wyższa dywidenda tym niższa jest wartość opcji. Dla opcji europejskiej PUT dywidenda przesuwa wykres w prawo. Jednocześnie zmienia się wysokość piku funkcji, ponieważ gwałtowny przeskok jaki powoduje dywidenda omija optymalną wartość opcji w momencie wypłaty dywidendy. 
+
+\subsubsection{Procentowa wartość dywidendy}
+Zajmijmy się teraz analizą wyceny opcji przy dywidendzie z wypłatą procentową.
+
+\begin{figure}[H]
+    \centering
+    \makebox[\textwidth][c]{%
+        \includegraphics[width=1.2\textwidth]{plots/d_eur_call_percent.png}
+    }
+    \caption{Wykres dla europejskiej opcji CALL}
+    \label{jan_1}
+\end{figure}
+
+Ogólny kształt wykresu jest bardzo podobny do wykresu dla dywidendy ze stałą wypłatą. Możemy jednak zauważyć, że wraz z każdym podwyższeniem dywidendy o 5\% cena opcji znacząco maleje. Przeanalizujmy to na następnym wykresie.
+
+\begin{figure}[H]
+    \centering
+    % PIERWSZY RZĄD
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/h1.png}
+        \caption{Heatmapa względem pól pod wykresem}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/h2.png}
+        \caption{Heatmapa względem wartości w najwyższym punkcie}
+    \end{subfigure}
+    
+    \caption{Zmiana wyceny w czasie $T_0$ mierzona 2 metrykami dla europejskiej opcji CALL}
+\end{figure}
+
+Żeby zbadać różnice w wycenie dla wszystkich wartości S w czasie $T_0$ możemy mierzyć pola pod wykresem funkcji przedstawionym na Rysunku \ref{jan_1} albo możemy mierzyć stosunek wartości w najwyższych punktach tych funkcji. Okazuje się, że obie metody dają takie same wyniki, co możemy zaobserwować powyżej.
+
+Na heatmapie możemy zaobserwować duże zmiany w wycenie względem wysokości dywidendy. Procentowa różnica pomiędzy brakiem dywidendy, a dywidendą równą 25\% sięga ponad 70\%. Tak duża zmiana wynika ze znacznie zmniejszonej szansy na wykonanie opcji kiedy w połowie okresu jej trwania następuje gwałtowny spadek. Ten wykres pokazuje, że wycenianie opcji nie zawsze jest intuicyjne i bez posiadania rozwiązania ogólnego, wycena opcji wymaga symulacji. 
